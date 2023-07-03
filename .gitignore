@@ -161,4 +161,4 @@ cython_debug/
 
 .space
 .DS_Store
-.phenv
+.phenv/
