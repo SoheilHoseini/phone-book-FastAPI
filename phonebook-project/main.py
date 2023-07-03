@@ -1,35 +1,27 @@
 from fastapi import FastAPI
-from random import randrange
-from enum import Enum
 
 app = FastAPI()
 
-class Weapon(str, Enum):
-    rock = 'rock'
-    paper = 'paper'
-    scissors = 'scissors'
+@app.get("/")
+def root():
+    return "todooo"
 
-@app.get('/')
-async def read_root():
-    return {'message': 'Hello World'}
+@app.post("/todo")
+def create_todo():
+    return "create todo item"
 
-@app.get('/shoot/{weapon}')
-async def shoot(weapon: Weapon):
+@app.get("/todo/{id}")
+def read_todo(id: int):
+    return "read todo item with id {id}"
 
-    game_key = {
-        ('rock', 'rock'): "It's a tie.",
-        ('rock', 'paper'): "You lost.",
-        ('rock', 'scissors'): "You won!",
-        ('paper', 'rock'): "You won!",
-        ('paper', 'paper'): "It's a tie.",
-        ('paper', 'scissors'): "You lost.",
-        ('scissors', 'rock'): "You lost.",
-        ('scissors', 'paper'): "You won!",
-        ('scissors', 'scissors'): "It's a tie.",
-    }
-    weapons = ['rock', 'paper', 'scissors']
-    opp_weapon = weapons[randrange(0, 3)]
-    message = game_key[(weapon, opp_weapon)]
-    result = {'user_weapon': weapon, 'opponent_weapon': opp_weapon, 'message': message}
+@app.put("/todo/{id}")
+def update_todo(id: int):
+    return "update todo item with id {id}"
 
-    return result
+@app.delete("/todo/{id}")
+def delete_todo(id: int):
+    return "delete todo item with id {id}"
+
+@app.get("/todo")
+def read_todo_list():
+    return "read todo list"
