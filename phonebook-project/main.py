@@ -1,6 +1,5 @@
 from fastapi import FastAPI, status, HTTPException
-from database import Base, engine
-from sqlalchemy.orm import Session
+from database import Base, engine, SessionLocal
 import models
 import schemas
 
@@ -18,7 +17,7 @@ def root():
 def create_todo(todo: schemas.ToDo):
 
     # create a new database session
-    session = Session(bind=engine, expire_on_commit=False)
+    session = SessionLocal()
 
     # create an instance of the ToDo database model
     tododb = models.ToDo(task = todo.task)
@@ -40,7 +39,7 @@ def create_todo(todo: schemas.ToDo):
 def read_todo(id: int):
 
     # create a new database session
-    session = Session(bind=engine, expire_on_commit=False)
+    session = SessionLocal()
 
     # get the todo item with the given id
     todo = session.query(models.ToDo).get(id)
@@ -58,7 +57,7 @@ def read_todo(id: int):
 def update_todo(id: int, task: str):
 
     # create a new database session
-    session = Session(bind=engine, expire_on_commit=False)
+    session = SessionLocal()
 
     # get the todo item with the given id
     todo = session.query(models.ToDo).get(id)
@@ -81,7 +80,7 @@ def update_todo(id: int, task: str):
 def delete_todo(id: int):
 
     # create a new database session
-    session = Session(bind=engine, expire_on_commit=False)
+    session = SessionLocal()
 
     # get the todo item with the given id
     todo = session.query(models.ToDo).get(id)
@@ -99,7 +98,7 @@ def delete_todo(id: int):
 @app.get("/todo")
 def read_todo_list():
     # create a new database session
-    session = Session(bind=engine, expire_on_commit=False)
+    session = SessionLocal()
 
     # get all todo items
     todo_list = session.query(models.ToDo).all()
