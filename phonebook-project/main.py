@@ -23,75 +23,83 @@ def get_session():
 
 @app.get("/")
 def root():
-    return "todooo"
+    return "Welcome to Narvan Phone Book App :)"
 
 
-@app.post("/todo", response_model=schemas.ToDo, status_code=status.HTTP_201_CREATED)
-def create_todo(todo: schemas.ToDoCreate, session: Session = Depends(get_session)):
+@app.post("/create", response_model=schemas.Contact, status_code=status.HTTP_201_CREATED)
+def create_todo(contact: schemas.ContactCreate, session: Session = Depends(get_session)):
 
-    # create an instance of the ToDo database model
-    tododb = models.ToDo(task = todo.task)
+    contactDB = models.Contact(first_name=contact.first_name,
+                               last_name=contact.last_name,
+                               phone_number=contact.phone_number)
 
     # add it to the session and commit it
-    session.add(tododb)
+    session.add(contactDB)
     session.commit()
-    session.refresh(tododb)
+    session.refresh(contactDB)
 
     # return the todo object
-    return tododb
+    return contactDB
 
 
-@app.get("/todo/{id}", response_model=schemas.ToDo)
-def read_todo(id: int, session: Session = Depends(get_session)):
+@app.get("/find/{txt}", response_model=List[schemas.Contact])
+def read_todo(txt: str, session: Session = Depends(get_session)):
 
-    # get the todo item with the given id
-    todo = session.query(models.ToDo).get(id)
+    contactsList = session.query(models.Contact).all()
+    matchingContacts = list()
 
-    # check if todo item with given id exists. If not, raise exception and return 404 not found response
-    if not todo:
-        raise HTTPException(status_code=404, detail=f"todo item with id {id} not found")
-
-    return todo
+    for item in contactsList:
+        if txt in item.first_name or txt in item.last_name or txt in item.phone_number:
+            matchingContacts.append(item)
 
 
-@app.put("/todo/{id}", response_model=schemas.ToDo)
-def update_todo(id: int, task: str, session: Session = Depends(get_session)):
+    if len(matchingContacts) == 0:
+        raise HTTPException(status_code=404, detail=f"No such a contact found")
 
-    # get the todo item with the given id
-    todo = session.query(models.ToDo).get(id)
+    return matchingContacts
 
-    # update todo item with the given task (if an item with the given id was found)
-    if todo:
-        todo.task = task
+
+@app.put("/edit/{id}", response_model=schemas.Contact)
+def update_todo(id: int, cont: schemas.ContactCreate, session: Session = Depends(get_session)):
+
+    # get the contact with the given id
+    contact = session.query(models.Contact).get(id)
+
+    if contact:
+        contact.first_name = cont.first_name
+        contact.last_name = cont.last_name
+        contact.phone_number = cont.phone_number
         session.commit()
 
-    # check if todo item with given id exists. If not, raise exception and return 404 not found response
-    if not todo:
-        raise HTTPException(status_code=404, detail=f"todo item with id {id} not found")
+    # check if the contact with given id exists. If not, raise exception and return 404 not found response
+    if not contact:
+        raise HTTPException(status_code=404, detail=f"Contact with id {id} not found")
 
-    return todo
+    return contact
 
 
-@app.delete("/todo/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@app.delete("/remove/{id}", status_code=status.HTTP_200_OK, response_model=str)
 def delete_todo(id: int, session: Session = Depends(get_session)):
 
-    # get the todo item with the given id
-    todo = session.query(models.ToDo).get(id)
+    # get the contact with the given id
+    contact = session.query(models.Contact).get(id)
 
-    # if todo item with given id exists, delete it from the database. Otherwise raise 404 error
-    if todo:
-        session.delete(todo)
+    if contact:
+        session.delete(contact)
         session.commit()
+    
     else:
-        raise HTTPException(status_code=404, detail=f"todo item with id {id} not found")
-
-    return f"todo item with id {id} deleted"
+        raise HTTPException(status_code=404, detail=f"Contact with id {id} not found")
 
 
-@app.get("/todo", response_model = List[schemas.ToDo])
+    return f"{contact.first_name} {contact.last_name} has been removed."
+    
+
+
+@app.get("/all-contacts", response_model = List[schemas.Contact])
 def read_todo_list(session: Session = Depends(get_session)):
 
-    # get all todo items
-    todo_list = session.query(models.ToDo).all()
+    # get all contacts
+    allContacts = session.query(models.Contact).all()
 
-    return todo_list
+    return allContacts

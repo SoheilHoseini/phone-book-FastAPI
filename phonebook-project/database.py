@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker # to handle databae sessions more easily
 
 
 # Create a sqlite engine instance
-engine = create_engine("sqlite:///todooo.db")
+engine = create_engine("sqlite:///phone-book.db")
 
 # Create a DeclarativeMeta instance
 Base = declarative_base()
