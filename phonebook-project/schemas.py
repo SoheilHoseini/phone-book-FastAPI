@@ -1,13 +1,16 @@
 from pydantic import BaseModel
 
-# Create ToDo Schema (Pydantic Model)
-class ToDoCreate(BaseModel):
-    task: str
+class ContactCreate(BaseModel):
+    first_name: str
+    last_name: str
+    phone_number: str
 
-# Complete ToDo Schema (Pydantic Model)
-class ToDo(BaseModel):
+
+class Contact(BaseModel):
     id: int
-    task: str
+    first_name: str
+    last_name: str
+    phone_number: str
 
     class Config:
         orm_mode = True
