@@ -23,7 +23,7 @@ def get_session():
 
 @app.get("/")
 def root():
-    return "Welcome to Narvan Phone Book App :)"
+    return {"msg": "Welcome to Narvan Phone Book App :)"}
 
 
 @app.post("/create", response_model=schemas.Contact, status_code=status.HTTP_201_CREATED)
@@ -54,7 +54,7 @@ def read_todo(txt: str, session: Session = Depends(get_session)):
 
 
     if len(matchingContacts) == 0:
-        raise HTTPException(status_code=404, detail=f"No such a contact found")
+        raise HTTPException(status_code=404, detail="No such a contact found")
 
     return matchingContacts
 
