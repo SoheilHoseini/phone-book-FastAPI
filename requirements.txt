@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+pytest
+httpcore
+httpx
+pydantic
+SQLAlchemy
+starlette
