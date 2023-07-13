@@ -12,7 +12,7 @@ Base.metadata.create_all(engine)
 app = FastAPI()
 
 
-# Helper function to get database session
+# Dependency to get database session
 def get_session():
     session = SessionLocal()
     try:
@@ -23,11 +23,11 @@ def get_session():
 
 @app.get("/")
 def root():
-    return "Welcome to Narvan Phone Book App :)"
+    return {"msg": "Welcome to Narvan Phone Book App :)"}
 
 
 @app.post("/create", response_model=schemas.Contact, status_code=status.HTTP_201_CREATED)
-def create_todo(contact: schemas.ContactCreate, session: Session = Depends(get_session)):
+def create_contact(contact: schemas.ContactCreate, session: Session = Depends(get_session)):
 
     contactDB = models.Contact(first_name=contact.first_name,
                                last_name=contact.last_name,
@@ -43,7 +43,7 @@ def create_todo(contact: schemas.ContactCreate, session: Session = Depends(get_s
 
 
 @app.get("/find/{txt}", response_model=List[schemas.Contact])
-def read_todo(txt: str, session: Session = Depends(get_session)):
+def find_contact(txt: str, session: Session = Depends(get_session)):
 
     contactsList = session.query(models.Contact).all()
     matchingContacts = list()
@@ -54,13 +54,13 @@ def read_todo(txt: str, session: Session = Depends(get_session)):
 
 
     if len(matchingContacts) == 0:
-        raise HTTPException(status_code=404, detail=f"No such a contact found")
+        raise HTTPException(status_code=404, detail="No such a contact found")
 
     return matchingContacts
 
 
 @app.put("/edit/{id}", response_model=schemas.Contact)
-def update_todo(id: int, cont: schemas.ContactCreate, session: Session = Depends(get_session)):
+def edit_contact(id: int, cont: schemas.ContactCreate, session: Session = Depends(get_session)):
 
     # get the contact with the given id
     contact = session.query(models.Contact).get(id)
@@ -79,7 +79,7 @@ def update_todo(id: int, cont: schemas.ContactCreate, session: Session = Depends
 
 
 @app.delete("/remove/{id}", status_code=status.HTTP_200_OK, response_model=str)
-def delete_todo(id: int, session: Session = Depends(get_session)):
+def delete_contact(id: int, session: Session = Depends(get_session)):
 
     # get the contact with the given id
     contact = session.query(models.Contact).get(id)
@@ -91,15 +91,25 @@ def delete_todo(id: int, session: Session = Depends(get_session)):
     else:
         raise HTTPException(status_code=404, detail=f"Contact with id {id} not found")
 
-
-    return f"{contact.first_name} {contact.last_name} has been removed."
+    return {"msg": f"{contact.first_name} {contact.last_name} has been removed."}
     
 
 
 @app.get("/all-contacts", response_model = List[schemas.Contact])
-def read_todo_list(session: Session = Depends(get_session)):
+def all_contacts(session: Session = Depends(get_session)):
 
     # get all contacts
     allContacts = session.query(models.Contact).all()
 
     return allContacts
+
+
+@app.get("/get-contact/{id}", response_model=schemas.Contact)
+def find_contact(id: int, session: Session = Depends(get_session)):
+
+    contact = session.query(models.Contact).get(id)
+
+    if not contact:
+        raise HTTPException(status_code=404, detail="No such a contact found")
+    else:
+        return contact
