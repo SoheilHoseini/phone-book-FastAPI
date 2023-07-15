@@ -1,0 +1,28 @@
+
+syntax = "proto3";
+
+service PhoneBook {
+    rpc GetAll(Empty) returns (ContacsList) {}
+    rpc Get(ID) returns (Contact) {}
+    rpc Create(Contact) returns (Contact) {}
+    rpc Update(Contact) returns (Contact) {}
+    rpc Remove(ID) returns (Empty) {}
+}
+
+message Contact {
+    ID id = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string phone_number = 4;
+}
+
+message ID {
+    int32 id = 1;
+}
+
+message ContacsList{
+    repeated Contact contacts = 1;
+}
+
+message Empty {}
+
